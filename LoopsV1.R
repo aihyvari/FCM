@@ -5,7 +5,7 @@ options(warn = -1)
 library(openxlsx)
 library(FCMapper)
 library(igraph)
-
+##Inputs are in Loops.xlsx Excel file
 nimi<-as.character("Loops.xlsx")
 ##############################################################################
 raw<-read.xlsx(xlsxFile=nimi,sheet=1, startRow=1, colNames=FALSE,
