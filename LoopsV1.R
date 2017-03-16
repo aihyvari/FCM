@@ -1,4 +1,4 @@
-rm(list=ls())
+#rm(list=ls())
 options(warn = -1)
 
 #########
@@ -15,7 +15,6 @@ raw<-read.xlsx(xlsxFile=nimi,sheet=1, startRow=1, colNames=FALSE,
 node<-as.numeric(raw[3,3])
 pituus<-as.numeric(raw[4,3])+1
 lkm<-as.numeric(raw[5,3])
-
 #
 picW<-as.numeric(raw[6,3])
 picH<-as.numeric(raw[7,3])
@@ -25,18 +24,16 @@ mat<-raw[12:33,3:ncol(raw)]
 mat<-data.matrix(mat)
 col<-length(na.omit(mat[,2]))
 mat<-mat[1:col,1:col]
-
 colnames(mat)<-raw[12:(11+col),2]
 rownames(mat)<-colnames(mat)
-
 ####################################################
 #STUDY CONCEPT MATRIX USING FCMapper
 mi<-matrix.indices(mat)
 ci<-concept.indices(mat, colnames(mat))
 res1=nochanges.scenario(mat,iter=60,colnames(mat))
-dev.off()
+#dev.off()
 ######################################################
-k<-which(mat!=0, arr.ind=F) #etsi nonzero solut, vain ne optimoidaan
+k<-which(mat!=0, arr.ind=F) #etsi nonzero solut
 paramlkm=length(k)
 k2<-mat[k]
 mat2<-matrix(0, ncol=col, nrow=col)
@@ -73,7 +70,6 @@ if ((apupaths[j,1])%in%(apupaths[j,2:ncol(apupaths)])){
 }
 
 paths<-paths[2:nrow(paths),]
-
 ###################################
 paths2<-matrix(NA, ncol=pituus, nrow=nrow(paths))
 
@@ -85,10 +81,8 @@ ans[1]<-node
 if (paths[l,k]==node){
   break
 }
-  #length(ans)<-pituus
 }
   paths2[l,]<-ans
- 
 }
 
 paths2<-unique(paths2[,1:pituus])  
@@ -153,10 +147,8 @@ dev.off()
 #CREATE EXCEL 
 ###
 wb2 = loadWorkbook(nimi)
-
 header1<-createStyle(fontSize=13, textDecoration="bold", halign="right",fgFill="grey", wrapText=TRUE)
 koro<-createStyle(fontSize=13, textDecoration="bold", halign="right", wrapText=TRUE)
-
 #########################
 ####RESULTS SHEET
 try(removeWorksheet(wb2, sheet="Results"), silent=TRUE)
@@ -172,7 +164,6 @@ addStyle(wb2, sheet="Results", header1, rows=3, cols=2:(2+pituus), gridExpand = 
 addStyle(wb2, sheet="Results", koro, rows=2, cols=pituus+4, gridExpand = TRUE)
 
 ##############################################
-
 #if(graph==1){
 writeData(wb2,sheet="Results", x="Concept matrix as a graph", startRow=2, startCol=pituus+4)
 writeData(wb2,sheet="Results", x="Positive conn. = Black arrow, Negative = Red arrow", startRow=2, 
@@ -183,10 +174,8 @@ writeData(wb2,sheet="Results", x="Positive conn. = Black arrow, Negative = Red a
 #}
 
 options(warn = 1)
-
 saveWorkbook(wb2, file=nimi, overwrite=TRUE)
 ###
-
 cat("\n", "Done! Go check Excel output")
 
 
