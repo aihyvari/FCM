@@ -12,19 +12,19 @@ raw<-read.xlsx(xlsxFile=nimi,sheet=1, startRow=1, colNames=FALSE,
                detectDates=FALSE, skipEmptyRows = FALSE)
 #################
 #POIMITAAN HALUTUT 
-node<-as.numeric(raw[3,3])
-pituus<-as.numeric(raw[4,3])+1
-lkm<-as.numeric(raw[5,3])
+node<-as.numeric(raw[2,3])
+pituus<-as.numeric(raw[3,3])+1
+#lkm<-as.numeric(raw[5,3])
 #
-picW<-as.numeric(raw[6,3])
-picH<-as.numeric(raw[7,3])
+picW<-as.numeric(raw[5,3])
+picH<-as.numeric(raw[6,3])
 
 #Matriisi
-mat<-raw[12:33,3:ncol(raw)]
+mat<-raw[8:nrow(raw),3:ncol(raw)]
 mat<-data.matrix(mat)
 col<-length(na.omit(mat[,2]))
 mat<-mat[1:col,1:col]
-colnames(mat)<-raw[12:(11+col),2]
+colnames(mat)<-raw[8:(7+col),2]
 rownames(mat)<-colnames(mat)
 ####################################################
 #STUDY CONCEPT MATRIX USING FCMapper
@@ -32,6 +32,7 @@ mi<-matrix.indices(mat)
 ci<-concept.indices(mat, colnames(mat))
 res1=nochanges.scenario(mat,iter=60,colnames(mat))
 #dev.off()
+lkm<-mi[1,2]*500
 ######################################################
 k<-which(mat!=0, arr.ind=F) #etsi nonzero solut
 paramlkm=length(k)
