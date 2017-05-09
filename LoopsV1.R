@@ -1,10 +1,11 @@
+
 #rm(list=ls())
-options(warn = -1)
+#options(warn = -1)
 
 #########
 library(openxlsx)
 library(FCMapper)
-library(igraph)
+library(igraph, )
 ##Inputs are in Loops.xlsx Excel file
 nimi<-as.character("Loops.xlsx")
 ##############################################################################
@@ -12,19 +13,19 @@ raw<-read.xlsx(xlsxFile=nimi,sheet=1, startRow=1, colNames=FALSE,
                detectDates=FALSE, skipEmptyRows = FALSE)
 #################
 #POIMITAAN HALUTUT 
-node<-as.numeric(raw[2,3])
-pituus<-as.numeric(raw[3,3])+1
+node<-as.numeric(raw[3,3])
+pituus<-as.numeric(raw[4,3])+1
 #lkm<-as.numeric(raw[5,3])
 #
-picW<-as.numeric(raw[5,3])
-picH<-as.numeric(raw[6,3])
+picW<-as.numeric(raw[6,3])
+picH<-as.numeric(raw[7,3])
 
 #Matriisi
-mat<-raw[8:nrow(raw),3:ncol(raw)]
+mat<-raw[12:nrow(raw),3:ncol(raw)]
 mat<-data.matrix(mat)
 col<-length(na.omit(mat[,2]))
 mat<-mat[1:col,1:col]
-colnames(mat)<-raw[8:(7+col),2]
+colnames(mat)<-raw[12:(11+col),2]
 rownames(mat)<-colnames(mat)
 ####################################################
 #STUDY CONCEPT MATRIX USING FCMapper
@@ -43,7 +44,7 @@ colnames(mat2)<-rownames(mat2)<-colnames(mat)
 #############################################################################
 #GRAPH OBJECT
 g1<-graph_from_adjacency_matrix(mat2, mode = c("directed"), weighted = TRUE, diag = TRUE,
-                            add.colnames = NULL, add.rownames = NA)
+                                add.colnames = NULL, add.rownames = NA)
 
 n1 <- neighbors(g1, node, mode=c("out"))
 N<-length(n1)
@@ -58,15 +59,15 @@ apupaths<-matrix(0, ncol=pituus, nrow=lkm)
 for (i in 1:lkm){
   rw<-random_walk(g1, start = node, steps = pituus, stuck = c("return"))
   length(rw)<-pituus
-apupaths[i,] <- rw
+  apupaths[i,] <- rw
 } 
 
 apupaths<-unique(apupaths[,1:ncol(apupaths)])
 paths<-matrix(NA, ncol=pituus, nrow=1)
 
 for (j in 1:nrow(apupaths)){
-if ((apupaths[j,1])%in%(apupaths[j,2:ncol(apupaths)])){
-  paths<-rbind(paths, apupaths[j,])
+  if ((apupaths[j,1])%in%(apupaths[j,2:ncol(apupaths)])){
+    paths<-rbind(paths, apupaths[j,])
   }
 }
 
@@ -75,14 +76,14 @@ paths<-paths[2:nrow(paths),]
 paths2<-matrix(NA, ncol=pituus, nrow=nrow(paths))
 
 for(l in 1:nrow(paths)){
-ans<-rep(NA, pituus)
-ans[1]<-node
+  ans<-rep(NA, pituus)
+  ans[1]<-node
   for (k in 2:pituus){
-  ans[k]<-paths[l,k]
-if (paths[l,k]==node){
-  break
-}
-}
+    ans[k]<-paths[l,k]
+    if (paths[l,k]==node){
+      break
+    }
+  }
   paths2[l,]<-ans
 }
 
@@ -92,7 +93,7 @@ riviS<-lapply(riviS, max)
 s<-rep(NA, length(riviS))
 for (h in 1:length(riviS)){
   if (riviS[[h]][1]>1){
-  s[h]<-0  
+    s[h]<-0  
   }else{
     s[h]<-1
   }
@@ -100,9 +101,9 @@ for (h in 1:length(riviS)){
 paths2<-paths2[s==1,]
 paths3<-as.data.frame(paths2)
 for (m in 1:pituus){
-paths3[,m] <- factor(paths3[,m],
-                    levels = c(seq(from=1, to=col, by=1)),
-                    labels = c(colnames(mat)))
+  paths3[,m] <- factor(paths3[,m],
+                       levels = c(seq(from=1, to=col, by=1)),
+                       labels = c(colnames(mat)))
 }
 colnames(paths3)<-paste("STEP ", seq(0,pituus-1,1))
 #tkplot(g1)
@@ -170,14 +171,16 @@ writeData(wb2,sheet="Results", x="Concept matrix as a graph", startRow=2, startC
 writeData(wb2,sheet="Results", x="Positive conn. = Black arrow, Negative = Red arrow", startRow=2, 
           startCol=pituus+6)
 
-  insertImage(wb2, sheet="Results", file="Graph.png", width = picW, height=picH, startRow= 3,
-              startCol=pituus+4, units = "cm", dpi=300)
+insertImage(wb2, sheet="Results", file="Graph.png", width = picW, height=picH, startRow= 3,
+            startCol=pituus+4, units = "cm", dpi=300)
 #}
 
 options(warn = 1)
 saveWorkbook(wb2, file=nimi, overwrite=TRUE)
 ###
 cat("\n", "Done! Go check Excel output")
+
+
 
 
 
